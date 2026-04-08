@@ -72,7 +72,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
-// Services
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<TokenService>();
@@ -94,13 +94,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Middleware - Configure the HTTP request pipeline
+app.UseMiddleware<ErrorHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
@@ -108,3 +108,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Partial Class for integration Tests
+public partial class Program { }
