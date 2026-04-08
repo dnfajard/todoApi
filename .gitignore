@@ -1,41 +1,58 @@
-## Build results
-bin/
-obj/
+# -------------------------
+# Build outputs
+# -------------------------
+TodoApi/bin/
+TodoApi/obj/
+TodoApi.Tests/bin/
+TodoApi.Tests/obj/
 [Dd]ebug/
 [Rr]elease/
 
-## Visual Studio
+# -------------------------
+# IDE / editor
+# -------------------------
 .vs/
+.vscode/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-## User-specific files
-*.suo
-*.user
-*.sln.docstates
-
-## Build results
-[Bb]in/
-[Oo]bj/
-
-## NuGet
+# -------------------------
+# NuGet
+# -------------------------
 *.nupkg
 **/packages/*
 !**/packages/build/
 
-## Others
+# -------------------------
+# Test outputs
+# -------------------------
+TodoApi.Tests/TestResults/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+# -------------------------
+# Logs / temp files
+# -------------------------
 *.log
 *.cache
 *.dll
 *.exe
 *.pdb
 
-## Mac
-.DS_Store
-
-## Sensitive data
-appsettings.Development.json
-appsettings.Production.json
+# -------------------------
+# Sensitive configs
+# -------------------------
+TodoApi/appsettings.Development.json
+TodoApi/appsettings.Production.json
 *.config
+
+# -------------------------
+# OS generated files
+# -------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
