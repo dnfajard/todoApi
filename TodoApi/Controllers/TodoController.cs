@@ -27,37 +27,23 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTodos()
         {
-            try
-            {
-                var userId = GetUserId();
-                var todos = await _todoService.GetUserTodos(userId);
-                return Ok(new { todos });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { message = "An error occurred while fetching todos" });
-            }
+            var userId = GetUserId();
+            var todos = await _todoService.GetUserTodos(userId);
+            return Ok(new { todos });
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTodo(int id)
         {
-            try
-            {
-                var userId = GetUserId();
-                var todo = await _todoService.GetTodoById(id, userId);
+            var userId = GetUserId();
+            var todo = await _todoService.GetTodoById(id, userId);
 
-                if (todo == null)
-                {
-                    return NotFound(new { message = "Todo not found" });
-                }
-
-                return Ok(new { todo });
-            }
-            catch (Exception)
+            if (todo == null)
             {
-                return StatusCode(500, new { message = "An error occurred while fetching the todo" });
+                return NotFound(new { message = "Todo not found" });
             }
+
+            return Ok(new { todo });
         }
 
         [HttpPost]
@@ -72,10 +58,6 @@ namespace TodoApi.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { message = "An error occurred while creating the todo" });
             }
         }
 
@@ -98,52 +80,36 @@ namespace TodoApi.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception)
-            {
-                return StatusCode(500, new { message = "An error occurred while updating the todo" });
-            }
         }
 
         [HttpPatch("{id}/toggle")]
         public async Task<IActionResult> ToggleTodo(int id)
         {
-            try
-            {
-                var userId = GetUserId();
-                var success = await _todoService.ToggleTodo(id, userId);
 
-                if (!success)
-                {
-                    return NotFound(new { message = "Todo not found" });
-                }
+            var userId = GetUserId();
+            var success = await _todoService.ToggleTodo(id, userId);
 
-                return Ok(new { message = "Todo toggled successfully" });
-            }
-            catch (Exception)
+            if (!success)
             {
-                return StatusCode(500, new { message = "An error occurred while toggling the todo" });
+                return NotFound(new { message = "Todo not found" });
             }
+
+            return Ok(new { message = "Todo toggled successfully" });
+        
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {
-            try
-            {
-                var userId = GetUserId();
-                var success = await _todoService.DeleteTodo(id, userId);
+            var userId = GetUserId();
+            var success = await _todoService.DeleteTodo(id, userId);
 
-                if (!success)
-                {
-                    return NotFound(new { message = "Todo not found" });
-                }
-
-                return Ok(new { message = "Todo deleted successfully" });
-            }
-            catch (Exception)
+            if (!success)
             {
-                return StatusCode(500, new { message = "An error occurred while deleting the todo" });
+                return NotFound(new { message = "Todo not found" });
             }
+
+            return Ok(new { message = "Todo deleted successfully" });
         }
     }
 }

@@ -3,17 +3,29 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TodoApi.Data;
-using TodoApi.Services;
-using TodoApi.Repositories;
+using TodoApi.Extensions;
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Services
+// =====================
+// Connection String
+// =====================
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// =====================
+// Services / DI
+// =====================
+builder.Services
+    .AddApplicationServices()
+    .AddRepositoryServices()
+    .AddAppDbContext(connectionString)
+    .AddCorsPolicy();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-
-// Configure Swagger with JWT support
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -42,13 +54,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-// Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// =====================
 // JWT Authentication
+// =====================
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -65,49 +73,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
 builder.Services.AddAuthorization();
 
-// Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
-
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ITodoService, TodoService>();
-builder.Services.AddScoped<TokenService>();
-
-// CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy =>
-        {
-            policy.SetIsOriginAllowed(origin => 
-                origin.StartsWith("http://localhost") || 
-                origin.StartsWith("https://localhost")
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        });
-});
-
+// =====================
+// Build App
+// =====================
 var app = builder.Build();
 
-// Middleware - Configure the HTTP request pipeline
-app.UseMiddleware<ErrorHandlingMiddleware>();
+// =====================
+// Middleware
+// =====================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseCors("AllowReactApp");
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
 
-// Partial Class for integration Tests
+// =====================
+// Setup For Integration Tests
+// =====================
 public partial class Program { }
